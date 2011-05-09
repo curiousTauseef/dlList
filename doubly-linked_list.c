@@ -17,6 +17,10 @@ void dlList_destroy(struct dlList *list){
 		return;
 
 	while(list->size > 0 && dlList_remove(list, list->tail, NULL));
+
+	list->head = NULL;
+	list->tail = NULL;
+	list->size = 0;
 }
 
 int dlList_insertBefore(struct dlList *list, struct dlList_node *beforeNode, const void *data){
