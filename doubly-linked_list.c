@@ -16,14 +16,15 @@ void dlList_destroy(struct dlList *list){
 	if(list == NULL)
 		return;
 
-	while(list->size > 0 && dlList_remove(list, list->tail, NULL));
+	while(list->size > 0)
+		dlList_remove(list, list->tail, NULL);
 
 	list->head = NULL;
 	list->tail = NULL;
 	list->size = 0;
 }
 
-int dlList_insertBefore(struct dlList *list, struct dlList_node *beforeNode, const void *data){
+int dlList_insertBefore(struct dlList *list, struct dlList_node *beforeNode, void *data){
 	if(list == NULL || (list->size > 0 && beforeNode == NULL))
 		return -1;
 
@@ -31,7 +32,7 @@ int dlList_insertBefore(struct dlList *list, struct dlList_node *beforeNode, con
 	if(newNode == NULL)
 		return -1;
 	
-	newNode->data = (void *)data;
+	newNode->data = data;
 
 	if(list->size == 0){
 		newNode->next = NULL;
@@ -57,7 +58,7 @@ int dlList_insertBefore(struct dlList *list, struct dlList_node *beforeNode, con
 	return 0;
 }
 
-int dlList_insertAfter(struct dlList *list, struct dlList_node *afterNode, const void *data){
+int dlList_insertAfter(struct dlList *list, struct dlList_node *afterNode, void *data){
 	if(list == NULL || (afterNode == NULL && list->size > 0))
 		return -1;
 
@@ -65,7 +66,7 @@ int dlList_insertAfter(struct dlList *list, struct dlList_node *afterNode, const
 	if(newNode == NULL)
 		return -1;
 
-	newNode->data = (void *)data;
+	newNode->data = data;
 
 	if(list->size == 0){
 		newNode->next = NULL;
@@ -91,7 +92,7 @@ int dlList_insertAfter(struct dlList *list, struct dlList_node *afterNode, const
 	return 0;
 }
 
-int dlList_append(struct dlList *list, const void *data){
+int dlList_append(struct dlList *list, void *data){
 	if(list == NULL)
 		return -1;
 

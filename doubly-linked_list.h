@@ -21,11 +21,11 @@ void dlList_init(struct dlList *list, void (*destroyFunction)(void *data), int (
 
 void dlList_destroy(struct dlList *list);
 
-int dlList_insertBefore(struct dlList *list, struct dlList_node *beforeNode, const void *data);
+int dlList_insertBefore(struct dlList *list, struct dlList_node *beforeNode, void *data);
 
-int dlList_insertAfter(struct dlList *list, struct dlList_node *afterNode, const void *data);
+int dlList_insertAfter(struct dlList *list, struct dlList_node *afterNode, void *data);
 
-int dlList_append(struct dlList *list, const void *data);
+int dlList_append(struct dlList *list, void *data);
 
 int dlList_remove(struct dlList *list, struct dlList_node *node, void **data);
 
