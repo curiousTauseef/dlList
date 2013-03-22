@@ -3,7 +3,8 @@
 
 void dlList_init( struct dlList *list,
       void ( *destroyFunction )( void *data ),
-      int ( *compareFunction )( const void *data1, const void *data2 ) )
+      int ( *compareFunction )( const void *data1, const void *data2 ),
+      void *( *dataDeepCopyFunction )( const void *data ) )
 {
 	if ( !list )
 		return;
@@ -13,6 +14,7 @@ void dlList_init( struct dlList *list,
 	list->tail = NULL;
 	list->compare = compareFunction;
 	list->destroy = destroyFunction;
+   list->copy = dataDeepCopyFunction;
 }
 
 void dlList_destroy( struct dlList *list )
@@ -104,6 +106,22 @@ int dlList_insertAfter( struct dlList *list, struct dlList_node *afterNode,
    return DLLIST_OK;
 }
 
+int dlList_insertOrdered( struct dlList *list, void *data )
+{
+   if ( !list )
+      return DLLIST_ERR_errArg;
+
+   if ( !list->compare )
+      return DLLIST_ERR_undefFunc;
+
+   struct dlList_node *n;
+   for ( n = list->head; n; n = n->next )
+      if ( list->compare( &data, &n->data ) < 0 )
+         return dlList_insertBefore( list, n, data );
+
+   return dlList_append( list, data );
+}
+
 int dlList_append( struct dlList *list, void *data )
 {
    if ( !list )
@@ -158,18 +176,64 @@ struct dlList_node *dlList_find( const struct dlList *list, const void *key )
 
 	struct dlList_node *nodePointer = list->head;
 
-	while ( nodePointer && list->compare( &key, &nodePointer->data) != 0)
+	while ( nodePointer && list->compare( &key, &nodePointer->data) != 0 )
 		nodePointer = nodePointer->next;
 
 	return nodePointer;
 }
 
-//FIXME:
-//struct dlList *dlList_findAll( const struct dlList *list, const void *key );
+struct dlList dlList_copy( const struct dlList *list )
+{
+
+   struct dlList l;
+   dlList_init( &l, list->destroy, list->compare, list->copy );
+
+   if ( !list )
+      return l;
+
+   struct dlList_node *n;
+   for ( n = list->head; n; n = n->next )
+   {
+      void *data = n->data;
+      if ( list->copy )
+         data = list->copy( data );
+
+      if ( dlList_append( &l, data ) )
+      {
+         dlList_destroy( &l );
+         return l;
+      }
+   }
+
+   return l;
+}
+
+int dlList_appendList( struct dlList *list1, const struct dlList *list2 )
+{
+   if ( !list1 || !list2 )
+      return DLLIST_ERR_errArg;
+
+   struct dlList_node *n;
+   for ( n = list2->head; n; n = n->next )
+   {
+      void *data = n->data;
+      if ( list1->copy )
+         data = list1->copy( data );
+
+      int retVal = dlList_append( list1, data );
+      if ( retVal )
+         return retVal;
+   }
+
+   return DLLIST_OK;
+}
 
 void dlList_sort( struct dlList *list )
 {
    if ( !list )
+      return;
+
+   if ( !list->compare )
       return;
 
    if ( list->size <= 1 )
