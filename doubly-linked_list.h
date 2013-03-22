@@ -10,8 +10,6 @@ struct dlList_node
 	struct dlList_node *next;
 };
 
-typedef struct dlList dlList;
-
 struct dlList{
 	size_t size;
 	struct dlList_node *head;
