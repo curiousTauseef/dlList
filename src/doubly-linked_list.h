@@ -59,11 +59,11 @@
 struct dlList_node
 {
    /** \brief User data */
-	void *data;
+   void *data;
    /** \brief Pointer to previous node */
-	struct dlList_node *prev;
+   struct dlList_node *prev;
    /** \brief Pointer to next node */
-	struct dlList_node *next;
+   struct dlList_node *next;
 };
 
 /**
@@ -72,19 +72,19 @@ struct dlList_node
 struct dlList
 {
    /** \brief Number of nodes */
-	size_t size;
+   size_t size;
    /** \brief Pointer to first node */
-	struct dlList_node *head;
+   struct dlList_node *head;
    /** \brief Pointer to last node */
-	struct dlList_node *tail;
+   struct dlList_node *tail;
 
    /** \brief Pointer to a user-supplied comparison function. May be NULL */
-	int ( *compare )( const void *data1, const void *data2 );
+   int ( *compare )( const void *data1, const void *data2 );
    /**
     * \brief Pointer to a user-supplied node user-data destroy function. May
     * be NULL
     */
-	void ( *destroy )( void *data );
+   void ( *destroy )( void *data );
    /**
     * \brief Pointer to a user-supplied function that makes a deep copy of a
     * supplied user data. May be NULL, in which case data is always shared

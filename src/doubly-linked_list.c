@@ -28,102 +28,102 @@ void dlList_init( struct dlList *list,
       int ( *compareFunction )( const void *data1, const void *data2 ),
       void *( *dataDeepCopyFunction )( const void *data ) )
 {
-	if ( !list )
-		return;
+   if ( !list )
+      return;
 
-	list->size = 0;
-	list->head = NULL;
-	list->tail = NULL;
-	list->compare = compareFunction;
-	list->destroy = destroyFunction;
+   list->size = 0;
+   list->head = NULL;
+   list->tail = NULL;
+   list->compare = compareFunction;
+   list->destroy = destroyFunction;
    list->copy = dataDeepCopyFunction;
 }
 
 void dlList_destroy( struct dlList *list )
 {
-	if ( !list )
-		return;
+   if ( !list )
+      return;
 
-	while ( list->size > 0 )
-		dlList_remove( list, list->tail, NULL );
+   while ( list->size > 0 )
+      dlList_remove( list, list->tail, NULL );
 
-	list->head = NULL;
-	list->tail = NULL;
-	list->size = 0;
+   list->head = NULL;
+   list->tail = NULL;
+   list->size = 0;
 }
 
 int dlList_insertBefore( struct dlList *list, struct dlList_node *beforeNode,
       void *data )
 {
-	if ( !list || ( !beforeNode && list->size > 0 ) )
-		return DLLIST_ERR_errArg;
+   if ( !list || ( !beforeNode && list->size > 0 ) )
+      return DLLIST_ERR_errArg;
 
-	struct dlList_node *newNode = malloc( sizeof( *newNode ) );
-	if ( !newNode )
-		return DLLIST_ERR_malloc;
-	
-	newNode->data = data;
+   struct dlList_node *newNode = malloc( sizeof( *newNode ) );
+   if ( !newNode )
+      return DLLIST_ERR_malloc;
 
-	if ( list->size == 0 )
+   newNode->data = data;
+
+   if ( list->size == 0 )
    {
-		newNode->next = NULL;
-		newNode->prev = NULL;
-		list->head = newNode;
-		list->tail = newNode;
-	}
+      newNode->next = NULL;
+      newNode->prev = NULL;
+      list->head = newNode;
+      list->tail = newNode;
+   }
 
-	else
+   else
    {
-		newNode->next = beforeNode;
-		newNode->prev = beforeNode->prev;
+      newNode->next = beforeNode;
+      newNode->prev = beforeNode->prev;
 
-		if ( beforeNode->prev == NULL )
-			list->head = newNode;
-		else
-			beforeNode->prev->next = newNode;
+      if ( beforeNode->prev == NULL )
+         list->head = newNode;
+      else
+         beforeNode->prev->next = newNode;
 
-		beforeNode->prev = newNode;
-	}
+      beforeNode->prev = newNode;
+   }
 
-	++list->size;
+   ++list->size;
 
-	return DLLIST_OK;
+   return DLLIST_OK;
 }
 
 int dlList_insertAfter( struct dlList *list, struct dlList_node *afterNode,
       void *data )
 {
-	if ( !list || ( !afterNode && list->size > 0 ) )
+   if ( !list || ( !afterNode && list->size > 0 ) )
       return DLLIST_ERR_errArg;
 
-	struct dlList_node *newNode = malloc( sizeof( *newNode ) );
+   struct dlList_node *newNode = malloc( sizeof( *newNode ) );
    if ( !newNode )
       return DLLIST_ERR_malloc;
 
-	newNode->data = data;
+   newNode->data = data;
 
-	if ( list->size == 0 )
+   if ( list->size == 0 )
    {
-		newNode->next = NULL;
-		newNode->prev = NULL;
-		list->head = newNode;
-		list->tail = newNode;
-	}
+      newNode->next = NULL;
+      newNode->prev = NULL;
+      list->head = newNode;
+      list->tail = newNode;
+   }
 
-	else
+   else
    {
-		newNode->next = afterNode->next;
-		newNode->prev = afterNode;
+      newNode->next = afterNode->next;
+      newNode->prev = afterNode;
 
-		if ( !afterNode->next )
-			list->tail = newNode;
-		else
-			afterNode->next->prev = newNode;
+      if ( !afterNode->next )
+         list->tail = newNode;
+      else
+         afterNode->next->prev = newNode;
 
-		afterNode->next = newNode;
-	}
+      afterNode->next = newNode;
+   }
 
-	++list->size;
+   ++list->size;
 
    return DLLIST_OK;
 }
@@ -149,64 +149,63 @@ int dlList_append( struct dlList *list, void *data )
    if ( !list )
       return DLLIST_ERR_errArg;
 
-	return dlList_insertAfter( list, list->tail, data );
+   return dlList_insertAfter( list, list->tail, data );
 }
 
 int dlList_remove( struct dlList *list, struct dlList_node *node,
       void **data )
 {
-	if ( !list || list->size == 0 || !node )
+   if ( !list || list->size == 0 || !node )
       return DLLIST_ERR_errArg;
 
-	if ( data )
-		*data = node->data;
+   if ( data )
+      *data = node->data;
 
-	else if ( list->destroy )
-		list->destroy(node->data);
+   else if ( list->destroy )
+      list->destroy(node->data);
 
-	if ( node == list->head )
+   if ( node == list->head )
    {
-		list->head = node->next;
+      list->head = node->next;
 
-		if ( !list->head )
-			list->tail = NULL;
-		else
-			node->next->prev = NULL;
-	}
-	
-	else
+      if ( !list->head )
+         list->tail = NULL;
+      else
+         node->next->prev = NULL;
+   }
+
+   else
    {
-		node->prev->next = node->next;
+      node->prev->next = node->next;
 
-		if ( !node->next )
-			list->tail = node->prev;
-		else
-			node->next->prev = node->prev;
-	}
+      if ( !node->next )
+         list->tail = node->prev;
+      else
+         node->next->prev = node->prev;
+   }
 
    free( node );
 
-	--list->size;
+   --list->size;
 
    return DLLIST_OK;
 }
 
 struct dlList_node *dlList_find( const struct dlList *list, const void *key )
 {
-	if ( !list || !list->compare || !key )
-		return NULL;
+   if ( !list || !list->compare || !key )
+      return NULL;
 
-	struct dlList_node *nodePointer = list->head;
+   struct dlList_node *nodePointer = list->head;
 
-	while ( nodePointer && list->compare( &key, &nodePointer->data) != 0 )
-		nodePointer = nodePointer->next;
+   while ( nodePointer && list->compare( &key, &nodePointer->data) != 0 )
+      nodePointer = nodePointer->next;
 
-	return nodePointer;
+   return nodePointer;
 }
 
 struct dlList dlList_copy( const struct dlList *list )
 {
-
    struct dlList l;
    dlList_init( &l, list->destroy, list->compare, list->copy );
 
@@ -315,7 +314,7 @@ void dlList_sort( struct dlList *list )
                right = right->next;
                --rightSize;
             }
-            
+
             if ( tail )
                tail->next = next;
             else
@@ -338,10 +337,10 @@ void dlList_sort( struct dlList *list )
 
 size_t dlList_size( const struct dlList *list )
 {
-	if ( !list )
-		return 0;
+   if ( !list )
+      return 0;
 
-	return list->size;
+   return list->size;
 }
 
 struct dlList_node *dlList_first( const struct dlList *list )
